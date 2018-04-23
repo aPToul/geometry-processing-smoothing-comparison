@@ -12,7 +12,8 @@ int main(int argc, char *argv[])
   // Load input meshes
   Eigen::MatrixXd OV,V,U;
   Eigen::MatrixXi F;
-  double lambda = 1e-5;
+  int mode = 1;
+  double lambda = 1e-3;
   igl::read_triangle_mesh(
     (argc>1?argv[1]:"../shared/data/bunny.off"),OV,F);
   // Load data into MatrixXd rather than VectorXd for simpler `smooth` API
@@ -40,6 +41,9 @@ int main(int argc, char *argv[])
   M,m  smooth mesh geometry
   R,r  reset mesh geometry and data
   L    lighting
+  g    Graph Laplacian
+  e    [DEFAULT] Edge-weighted Graph Laplacian
+  t    Cotangent Laplacian
 )";
   const auto & update = [&]()
   {
@@ -70,7 +74,7 @@ int main(int argc, char *argv[])
         //////////////////////////////////////////////////////////////////////
         // Use copy constructor to fake in-place API (may be overly
         // conservative depending on your implementation)
-        smooth(V,F,Eigen::MatrixXd(U),lambda,U);
+        smooth(V, F, Eigen::MatrixXd(U),lambda,U,mode);
         break;
       case 'K':
       case 'k':
@@ -91,7 +95,28 @@ int main(int argc, char *argv[])
         // data is a signal defined over current surface: copy is needed to
         // prevent memory "aliasing"
         Eigen::MatrixXd Vcpy(V);
-        smooth(Vcpy,F,Vcpy,lambda,V);
+        smooth(Vcpy, F, Vcpy, lambda, V, mode);
+        break;
+      }
+      case 'g':
+      {
+        mode = 0;
+        lambda = 1e-1;
+        std::cout<<"lambda: "<<lambda<<std::endl;
+        break;
+      }
+      case 'e':
+      {
+        mode = 1;
+        lambda = 1e-3;
+        std::cout<<"lambda: "<<lambda<<std::endl;
+        break;
+      }
+      case 't':
+      {
+        mode = 2;
+        lambda = 1e-5;
+        std::cout<<"lambda: "<<lambda<<std::endl;
         break;
       }
       case 'R':

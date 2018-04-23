@@ -19,5 +19,6 @@ void smooth(
     const Eigen::MatrixXi & F,
     const Eigen::MatrixXd & G,
     double lambda,
-    Eigen::MatrixXd & U);
+    Eigen::MatrixXd & U,
+    int mode);
 #endif
